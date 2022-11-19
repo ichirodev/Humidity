@@ -1,0 +1,35 @@
+.App {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.title {
+    justify-content: center;
+}
+
+.logo-text {
+    font-size: 35px;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.content-box {
+    padding: 12px;
+}
+
+.sensors-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    align-content: flex-start;
+    width: 100vw;
+    min-height: fit-content;
+    padding-top: 4px;
+}
+
+.sensor-data-card {
+    min-width: 340px;
+}
