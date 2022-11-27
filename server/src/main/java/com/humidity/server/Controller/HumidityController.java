@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
+@CrossOrigin
 public class HumidityController {
     Logger logger = LoggerFactory.getLogger(HumidityController.class);
     @Autowired
@@ -29,25 +30,25 @@ public class HumidityController {
     }
 
     @GetMapping(path = "/sensors")
-    private List<SensorEntity> getSensors() {
+    private List<String> getSensors() {
+        List<String> sensorsList = new ArrayList<>();
         logger.info("Retrieving all registered sensors");
-        return sensorService.getAllSensorsByName();
+        sensorService.getAllSensorsByName().forEach(sensorEntity -> sensorsList.add(sensorEntity.getName()));
+        return sensorsList;
     }
 
     @GetMapping(path = "/sensors/humidity")
-    private Map<String, List<AbstractMap.SimpleEntry<Long, Integer>>> getSensorsHumidity(
+    private Map<String, List<String>> getSensorsHumidity(
             @RequestParam List<String> sensorsIds
     ) {
         logger.info("Retrieving sensors " + sensorsIds + " humidity");
-        Map<String, List<AbstractMap.SimpleEntry<Long, Integer>>> sensorsDataMap = new HashMap<>();
+        Map<String, List<String>> sensorsDataMap = new HashMap<>();
         sensorsIds.forEach(sensor -> {
-            var humidityList = new ArrayList<AbstractMap.SimpleEntry<Long, Integer>>();
-            // Simplify from entity to a class of only { data, atTime } and add it to a list
+            var humidityList = new ArrayList<String>();
+            // Simplify from entity to a class of only { atTime, data } and add it to a list
             humidityService.getAllSensorHumiditiesList(sensor)
                             .forEach(humidityEntity -> {
-                                AbstractMap.SimpleEntry<Long, Integer> simplifiedHumidity = new AbstractMap.SimpleEntry<>(
-                                        humidityEntity.getAtTime(), humidityEntity.getData()
-                                );
+                                var simplifiedHumidity = humidityEntity.getAtTime() + "," + humidityEntity.getData();
                                 humidityList.add(simplifiedHumidity);
                             });
             sensorsDataMap.put(sensor, humidityList);
@@ -57,13 +58,13 @@ public class HumidityController {
     }
 
     @PostMapping(path = "/sensors/{sensorName}/")
-    private String sendHumidity(
+    private Boolean sendHumidity(
             @PathVariable String sensorName,
             @RequestParam Integer humidity
     ) {
         logger.info("Saving humidity data to sensor " + sensorName);
         humidityService.saveHumidity(sensorName, humidity);
         logger.info("Humidity data saved correctly on sensor " + sensorName);
-        return "Sensor " + sensorName + " information received correctly";
+        return true;
     }
 }
